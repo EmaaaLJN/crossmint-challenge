@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Coordenate < ApplicationRecord
   belongs_to :target, polymorphic: true
 
@@ -14,9 +16,9 @@ class Coordenate < ApplicationRecord
   end
 
   def coordenate_already_occupied
-    if Coordenate.where(x:, y:).count.positive?
-      errors.add :x, 'coordenate already occupied'
-      errors.add :y, 'coordenate already occupied'
-    end
+    return unless Coordenate.where(x:, y:).count.positive?
+
+    errors.add :x, 'coordenate already occupied'
+    errors.add :y, 'coordenate already occupied'
   end
 end
