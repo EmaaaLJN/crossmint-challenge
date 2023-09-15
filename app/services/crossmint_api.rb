@@ -5,9 +5,21 @@ class CrossmintApi
   end
 
   def goals
-    response = request_get 'goal'
+    response = request_get('map', @key, 'goal')
     # TODO: por ahora solo esto.
     response['goal']
+  end
+
+  # TODO: DEAL WITH ERROR AND EXCEPTIONS
+  def add_polyanets(row, column)
+    params = { row:, column: }
+    request_post('polyanets', params)
+  end
+
+  # TODO: DEAL WITH ERROR AND EXCEPTIONS
+  def remove_polyanets(row, column)
+    params = { row:, column: }
+    request_delete('polyanets', params)
   end
 
   def parse_goals(goals)
@@ -27,16 +39,22 @@ class CrossmintApi
   end
 
   private
-  def request_get(path)
-    HTTParty.get build_url(path)
+
+  def request_get(*path)
+    HTTParty.get build_url(*path)
   end
 
-  def request_post(path)
-    HTTParty.post build_url(path)
+  def request_post(path, request = {})
+    request.merge!(candidateId: @key)
+    HTTParty.post build_url(path), body: request
   end
 
-  def build_url(path = '')
-    # por las dudas uso map
-    [@url, 'map', @key, path].join('/')
+  def request_delete(path, request = {})
+    request.merge!(candidateId: @key)
+    HTTParty.delete build_url(path), body: request
+  end
+
+  def build_url(*paths)
+    [@url, *paths].join('/')
   end
 end
