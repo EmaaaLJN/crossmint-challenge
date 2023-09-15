@@ -4,3 +4,7 @@ require: rubocop-rails
 
 Documentation:
   Enabled: false
+
+AllCops:
+  Exclude:
+    - lib/tasks/auto_annotate_models.rake
