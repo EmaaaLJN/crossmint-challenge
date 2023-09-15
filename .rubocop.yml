@@ -8,3 +8,7 @@ Documentation:
 AllCops:
   Exclude:
     - lib/tasks/auto_annotate_models.rake
+
+Metrics/BlockLength:
+  Exclude:
+    - spec/models/coordenate_spec.rb

@@ -1,7 +1,41 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
-RSpec.describe Coordenate, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+describe Coordenate, type: :model do
+  subject { build_stubbed(:coordenate, :for_polyanet) }
+
+  it 'is valid' do
+    expect(subject).to be_valid
+  end
+
+  context 'when coordenates are negative' do
+    before do
+      subject.x = -1
+      subject.y = -2
+    end
+
+    it 'is not valid with x negative' do
+      expect(subject).not_to be_valid
+    end
+
+    it 'is not valid with y negative' do
+      expect(subject).not_to be_valid
+    end
+  end
+
+  context 'when coordenate is already occupied' do
+    before do
+      create(:coordenate, :for_cometh, x: 2, y: 3)
+    end
+
+    it 'is not valid other object with same coordenates' do
+      subject.x = 2
+      subject.y = 3
+
+      expect(subject).not_to be_valid
+    end
+  end
 end
 
 # == Schema Information
