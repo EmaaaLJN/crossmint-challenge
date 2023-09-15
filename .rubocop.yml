@@ -8,6 +8,7 @@ Documentation:
 AllCops:
   Exclude:
     - lib/tasks/auto_annotate_models.rake
+    - db/**/*
 
 Metrics/BlockLength:
   Exclude:
