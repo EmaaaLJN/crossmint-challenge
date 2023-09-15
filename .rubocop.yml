@@ -13,3 +13,19 @@ AllCops:
 Metrics/BlockLength:
   Exclude:
     - spec/models/coordenate_spec.rb
+
+Metrics/MethodLength:
+  Exclude:
+    - spec/helpers/mocked_crossmint_requests_helper.rb
+
+Style/WordArray:
+  Exclude:
+    - spec/helpers/mocked_crossmint_requests_helper.rb
+
+Style/StringLiterals:
+  Exclude:
+    - spec/helpers/mocked_crossmint_requests_helper.rb
+
+Layout/FirstArrayElementIndentation:
+  Exclude:
+    - spec/helpers/mocked_crossmint_requests_helper.rb

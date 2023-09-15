@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CrossmintApi
   def initialize
     @url = ENV['API_URL']
