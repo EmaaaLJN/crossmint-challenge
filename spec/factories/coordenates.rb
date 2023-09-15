@@ -2,15 +2,20 @@
 
 FactoryBot.define do
   factory :coordenate do
-    transient do
-      target { nil }
-    end
-
     x { Faker::Number.between(from: 0, to: 10) }
     y { Faker::Number.between(from: 0, to: 10) }
 
-    target_id { target.id }
-    target_type { target.class.name }
+    trait :for_cometh do
+      association :target, factory: :cometh
+    end
+
+    trait :for_polyanet do
+      association :target, factory: :polyanet
+    end
+
+    trait :for_soloon do
+      association :target, factory: :soloon
+    end
   end
 end
 
