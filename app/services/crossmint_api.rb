@@ -6,10 +6,18 @@ class CrossmintApi
     @key = ENV['API_KEY']
   end
 
-  def goals
+  # TODO: DEAL WITH ERROR AND EXCEPTIONS
+  def establish_data_from_goals
     response = request_get('map', @key, 'goal')
-    # TODO: por ahora solo esto.
-    response['goal']
+
+    if response.ok?
+      parsed_data = parse_goals(response['goal'])
+
+      # Save polyanet into database
+      parsed_data['POLYANET'].each do |(x, y)|
+        Polyanet.create.create_coordenate(x:, y:)
+      end
+    end
   end
 
   # TODO: DEAL WITH ERROR AND EXCEPTIONS

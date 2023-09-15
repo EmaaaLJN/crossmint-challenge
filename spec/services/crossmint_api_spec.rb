@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe CrossmintApi do
@@ -14,24 +16,17 @@ describe CrossmintApi do
   context 'when making a request to goals' do
     let(:url) { [api_url, 'map', api_key, 'goal'].join('/') }
     let(:stubbed_request) { mocked_goals_response_success(url) }
-    let(:response) { subject.goals }
+    let(:response) { subject.establish_data_from_goals }
+    let(:polyanet_ocurrences) { 13 }
 
     before { stubbed_request }
 
     it 'has been properly requested' do
-      response
-
       expect(stubbed_request).to have_been_requested
     end
 
-    it 'has not empty response' do
-      expect(response).to_not be_empty
-    end
-
-    it 'has a response with values for goals attribute' do
-      expected_body_response = goals_body_success[:goal]
-
-      expect(response).to match_array expected_body_response
+    it 'is polyanet inserted into database' do
+      expect { response }.to change(Polyanet, :count).from(0).to(polyanet_ocurrences)
     end
   end
 
