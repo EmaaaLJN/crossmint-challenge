@@ -15,7 +15,7 @@ class CrossmintApi
 
       # Save polyanet into database
       parsed_data['POLYANET'].each do |(x, y)|
-        Polyanet.create.create_coordenate(x:, y:)
+        Polyanet.create!.create_coordenate(x:, y:)
       end
     end
   end

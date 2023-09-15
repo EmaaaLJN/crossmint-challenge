@@ -22,6 +22,8 @@ describe CrossmintApi do
     before { stubbed_request }
 
     it 'has been properly requested' do
+      response
+
       expect(stubbed_request).to have_been_requested
     end
 
