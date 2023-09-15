@@ -1,3 +1,15 @@
 inherit_from: .rubocop_todo.yml
 
 require: rubocop-rails
+
+Documentation:
+  Enabled: false
+
+AllCops:
+  Exclude:
+    - lib/tasks/auto_annotate_models.rake
+    - db/**/*
+
+Metrics/BlockLength:
+  Exclude:
+    - spec/models/coordenate_spec.rb
