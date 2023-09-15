@@ -1,6 +1,16 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :coordenate do
-    coordenate_on { nil }
+    transient do
+      target { nil }
+    end
+
+    x { Faker::Number.between(from: 0, to: 10) }
+    y { Faker::Number.between(from: 0, to: 10) }
+
+    target_id { target.id }
+    target_type { target.class.name }
   end
 end
 
