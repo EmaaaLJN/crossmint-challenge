@@ -9,6 +9,12 @@ AllCops:
   Exclude:
     - lib/tasks/auto_annotate_models.rake
     - db/**/*
+    - config/**/*
+    - bin/**/*
+    - Rakefile
+    - app/mailers/application_mailer.rb
+    - test/**/*
+    - config.ru
 
 Metrics/BlockLength:
   Exclude:
