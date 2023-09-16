@@ -6,12 +6,10 @@ class CrossmintApi
     @key = ENV['API_KEY']
   end
 
-  # TODO: DEAL WITH ERROR AND EXCEPTIONS
   def establish_data_from_goals
-    response = request_get('map', @key, 'goal')
-
-    if response.success?
-      parsed_data = parse_goals(response['goal'])
+    request = request_get('map', @key, 'goal') do |response|
+      response_body = JSON.parse response.body
+      parsed_data = parse_goals(response_body['goal'])
 
       parsed_data.each do |elem, data|
         next if elem == 'SPACE'
@@ -19,60 +17,67 @@ class CrossmintApi
         insert_element_database(elem, data)
       end
     end
+
+    request.run
   end
 
-  # TODO: DEAL WITH ERROR AND EXCEPTIONS
-  def add_polyanets(row, column)
+  def add_polyanets(row, column, &block)
     params = { row:, column: }
-    request_post('polyanets', params)
+    request_post('polyanets', params, &block)
   end
 
-  # TODO: DEAL WITH ERROR AND EXCEPTIONS
-  def remove_polyanets(row, column)
+  def remove_polyanets(row, column, &block)
     params = { row:, column: }
-    request_delete('polyanets', params)
+    request_delete('polyanets', params, &block)
   end
 
-  def add_comeths(row, column, direction)
+  def add_comeths(row, column, direction, &block)
     params = { row:, column:, direction: }
-    request_post('comeths', params)
+    request_post('comeths', params, &block)
   end
 
-  def remove_comeths(row, column)
+  def remove_comeths(row, column, &block)
     params = { row:, column: }
-    request_delete('comeths', params)
+    request_delete('comeths', params, &block)
   end
+
+  private
 
   def parse_goals(goals)
     result = {}
 
     goals.each.with_index do |rows, i|
       rows.each.with_index do |columns, j|
-        if result.key? columns
-          result[columns].push([i, j])
-        else
-          result[columns] = [[i, j]]
-        end
+        result.key?(columns) ? result[columns].push([i, j]) : result[columns] = [[i, j]]
       end
     end
 
     result
   end
 
-  private
-
-  def request_get(*path)
-    HTTParty.get build_url(*path)
+  def request_get(*path, &block)
+    dynamic_path = path.join('/')
+    build_request(:get, dynamic_path, &block)
   end
 
-  def request_post(path, request = {})
-    request.merge!(candidateId: @key)
-    HTTParty.post build_url(path), body: request
+  def request_post(path, params = {}, &block)
+    params.merge!(candidateId: @key)
+    build_request(:post, path, params, &block)
   end
 
-  def request_delete(path, request = {})
-    request.merge!(candidateId: @key)
-    HTTParty.delete build_url(path), body: request
+  def request_delete(path, params = {}, &block)
+    params.merge!(candidateId: @key)
+    build_request(:delete, path, params, &block)
+  end
+
+  def build_request(method, path, params = {}, &block)
+    headers = { 'content-type': 'application/json' }
+    request = Typhoeus::Request.new(build_url(path), method:, followlocation: true, headers:, body: params.to_json)
+
+    request.on_complete do |response|
+      request_handler(response, block)
+    end
+    request
   end
 
   def build_url(*paths)
@@ -117,5 +122,42 @@ class CrossmintApi
   def attributes_by_element_type(model_name, attribute)
     attributes = {}
     attributes.merge!({ direction: attribute.downcase.to_sym }) if model_name.downcase == 'cometh'
+  end
+
+  def request_handler(response, block)
+    if block.nil?
+      response_logger response, logger_success
+    else
+      block_content = block.arity == 1 ? block.call(response) : block.call
+      response_logger response, block_content
+    end
+  end
+
+  def response_logger(response, body)
+    if response.success?
+      body
+    elsif response.timed_out?
+      logger_timed_out
+    elsif response.code.zero?
+      logger_code_zero response
+    else
+      logger_error_code response
+    end
+  end
+
+  def logger_success
+    Rails.logger.info 'Request Success!'
+  end
+
+  def logger_timed_out
+    Rails.logger.error 'Request got timed out'
+  end
+
+  def logger_code_zero(response)
+    Rails.logger.error response.return_message.to_s
+  end
+
+  def logger_error_code(response)
+    Rails.logger.error "HTTP request failed: #{response.code}."
   end
 end

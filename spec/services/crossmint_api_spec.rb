@@ -45,22 +45,29 @@ describe CrossmintApi do
   context 'when making a request to polyanets' do
     let(:url) { [api_url, 'polyanets'].join('/') }
     let(:params) { { row: 2, column: 2, candidateId: api_key } }
+    let(:hydra) { Typhoeus::Hydra.new }
+
+    before do
+      Typhoeus::Expectation.clear
+    end
 
     context 'when requesting is add a polyanets' do
       let(:stubbed_request) { post_response_success(url) }
 
       let(:request) { subject.add_polyanets(2, 2) }
 
-      before { stubbed_request }
+      before do
+        stubbed_request
+      end
 
       it 'has been properly requested' do
-        request
-
+        hydra.queue(request)
+        hydra.run
         expect(stubbed_request).to have_been_requested
       end
 
       it 'responds with success' do
-        expect(request.code).to be 200
+        expect(request.run.code).to be 200
       end
     end
 
@@ -72,13 +79,14 @@ describe CrossmintApi do
       before { stubbed_request }
 
       it 'has been properly requested' do
-        request
+        hydra.queue(request)
+        hydra.run
 
         expect(stubbed_request).to have_been_requested
       end
 
       it 'responds with success' do
-        expect(request.code).to be 200
+        expect(request.run.code).to be 200
       end
     end
   end
