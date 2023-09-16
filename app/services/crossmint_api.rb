@@ -41,6 +41,16 @@ class CrossmintApi
     request_delete('comeths', params, &block)
   end
 
+  def add_soloons(row, column, color, &block)
+    params = { row:, column:, color: }
+    request_post('soloons', params, &block)
+  end
+
+  def remove_soloons(row, column, &block)
+    params = { row:, column: }
+    request_delete('soloons', params, &block)
+  end
+
   private
 
   def parse_goals(goals)
@@ -122,6 +132,7 @@ class CrossmintApi
   def attributes_by_element_type(model_name, attribute)
     attributes = {}
     attributes.merge!({ direction: attribute.downcase.to_sym }) if model_name.downcase == 'cometh'
+    attributes.merge!({ color: attribute.downcase.to_sym }) if model_name.downcase == 'soloon'
   end
 
   def request_handler(response, block)

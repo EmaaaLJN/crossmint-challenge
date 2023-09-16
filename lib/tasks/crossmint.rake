@@ -28,6 +28,15 @@ namespace :crossmint do
       hydra.queue(request)
     end
 
+    # send soloons to api
+    Coordenate.soloons.find_each do |coor|
+      cometh = coor.target
+      request = crossmint_api.add_soloons(coor.x, coor.y, cometh.color) do
+        rate_queue.shift
+      end
+      hydra.queue(request)
+    end
+
     hydra.run
   end
 
@@ -49,6 +58,14 @@ namespace :crossmint do
     # remove comeths from api
     Coordenate.comeths.find_each do |coor|
       request = crossmint_api.remove_comeths(coor.x, coor.y) do
+        rate_queue.shift
+      end
+      hydra.queue(request)
+    end
+
+    # remove comeths from api
+    Coordenate.soloons.find_each do |coor|
+      request = crossmint_api.remove_soloons(coor.x, coor.y) do
         rate_queue.shift
       end
       hydra.queue(request)

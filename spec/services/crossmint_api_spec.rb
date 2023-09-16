@@ -30,6 +30,7 @@ describe CrossmintApi do
     context 'when inserting element into database' do
       let(:polyanet_ocurrences) { 113 }
       let(:cometh_ocurrences) { 25 }
+      let(:soloon_ocurrences) { 28 }
 
       it 'is polyanet' do
         expect { response }.to change(Polyanet, :count).from(0).to(polyanet_ocurrences)
@@ -37,6 +38,10 @@ describe CrossmintApi do
 
       it 'is a cometh' do
         expect { response }.to change(Cometh, :count).from(0).to(cometh_ocurrences)
+      end
+
+      it 'is a soloon' do
+        expect { response }.to change(Soloon, :count).from(0).to(soloon_ocurrences)
       end
     end
   end
