@@ -11,7 +11,7 @@ end
 # Table name: comeths
 #
 #  id         :bigint           not null, primary key
-#  direction  :integer          default(0)
+#  direction  :integer          default("up")
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #
