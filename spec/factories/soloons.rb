@@ -10,6 +10,7 @@ end
 # Table name: soloons
 #
 #  id         :bigint           not null, primary key
+#  color      :integer          default("white")
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #
