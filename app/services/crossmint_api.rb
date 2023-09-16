@@ -4,6 +4,8 @@ class CrossmintApi
   def initialize
     @url = ENV['API_URL']
     @key = ENV['API_KEY']
+    @rate_queue = Limiter::RateQueue.new(5, interval: 9)
+    @hydra = Typhoeus::Hydra.new(max_concurrency: 1)
   end
 
   def establish_data_from_goals
@@ -19,6 +21,26 @@ class CrossmintApi
     end
 
     request.run
+  end
+
+  def action_collection_to_api(action, collection)
+    collection.find_each do |coor|
+      args = [coor.x, coor.y]
+
+      entity_obj = coor.target
+
+      args.push(entity_obj.direction) if action.to_s == 'add_comeths'
+      args.push(entity_obj.color) if action.to_s == 'add_soloons'
+
+      request = send(action, *args) do
+        @rate_queue.shift
+      end
+      @hydra.queue(request)
+    end
+  end
+
+  def run_requests
+    @hydra.run
   end
 
   def add_polyanets(row, column, &block)
