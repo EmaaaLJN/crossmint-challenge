@@ -38,12 +38,22 @@ namespace :crossmint do
     rate_queue = Limiter::RateQueue.new(5, interval: 9)
     hydra = Typhoeus::Hydra.new(max_concurrency: 1)
 
+    # remove polyanets from api
     Coordenate.polyanets.find_each do |coor|
       request = crossmint_api.remove_polyanets(coor.x, coor.y) do
         rate_queue.shift
       end
       hydra.queue(request)
     end
+
+    # remove comeths from api
+    Coordenate.comeths.find_each do |coor|
+      request = crossmint_api.remove_comeths(coor.x, coor.y) do
+        rate_queue.shift
+      end
+      hydra.queue(request)
+    end
+
     hydra.run
   end
 end

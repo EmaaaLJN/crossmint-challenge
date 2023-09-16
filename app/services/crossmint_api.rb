@@ -36,9 +36,9 @@ class CrossmintApi
     request_post('comeths', params, &block)
   end
 
-  def remove_comeths(row, column)
+  def remove_comeths(row, column, &block)
     params = { row:, column: }
-    request_delete('comeths', params)
+    request_delete('comeths', params, &block)
   end
 
   private
@@ -57,17 +57,17 @@ class CrossmintApi
 
   def request_get(*path, &block)
     dynamic_path = path.join('/')
-    build_request(:get, dynamic_path) { |response| block.call(response) }
+    build_request(:get, dynamic_path, &block)
   end
 
   def request_post(path, params = {}, &block)
     params.merge!(candidateId: @key)
-    build_request(:post, path, params) { block.call }
+    build_request(:post, path, params, &block)
   end
 
   def request_delete(path, params = {}, &block)
     params.merge!(candidateId: @key)
-    build_request(:delete, path, params) { block.call }
+    build_request(:delete, path, params, &block)
   end
 
   def build_request(method, path, params = {}, &block)
@@ -125,8 +125,17 @@ class CrossmintApi
   end
 
   def request_handler(response, block)
+    if block.nil?
+      response_logger response, logger_success
+    else
+      block_content = block.arity == 1 ? block.call(response) : block.call
+      response_logger response, block_content
+    end
+  end
+
+  def response_logger(response, body)
     if response.success?
-      block.arity == 1 ? block.call(response) : block.call
+      body
     elsif response.timed_out?
       logger_timed_out
     elsif response.code.zero?
@@ -134,6 +143,10 @@ class CrossmintApi
     else
       logger_error_code response
     end
+  end
+
+  def logger_success
+    Rails.logger.info 'Request Success!'
   end
 
   def logger_timed_out
