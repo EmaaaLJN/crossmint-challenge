@@ -8,20 +8,32 @@ class CrossmintApi
 
   # TODO: DEAL WITH ERROR AND EXCEPTIONS
   def establish_data_from_goals
-    response = request_get('map', @key, 'goal')
+    request = request_get('map', @key, 'goal')
 
-    if response.success?
-      parsed_data = parse_goals(response['goal'])
+    # CHANGE THIS BECAUSE IM DOING DRY
+    request.on_complete do |response|
+      if response.success?
+        response_body = JSON.parse response.body
+        parsed_data = parse_goals(response_body['goal'])
 
-      parsed_data.each do |elem, data|
-        next if elem == 'SPACE'
+        parsed_data.each do |elem, data|
+          next if elem == 'SPACE'
 
-        insert_element_database(elem, data)
+          insert_element_database(elem, data)
+        end
+
+      elsif response.timed_out?
+        Rails.logger.error 'Request got timed out'
+      elsif response.code.zero?
+        Rails.logger.error response.return_message.to_s
+      else
+        Rails.logger.error "HTTP request failed: #{response.code}."
       end
     end
+
+    request.run
   end
 
-  # TODO: DEAL WITH ERROR AND EXCEPTIONS
   def add_polyanets(row, column)
     params = { row:, column: }
     request_post('polyanets', params)
@@ -62,17 +74,23 @@ class CrossmintApi
   private
 
   def request_get(*path)
-    HTTParty.get build_url(*path)
+    dynamic_path = path.join('/')
+    build_request(:get, dynamic_path)
   end
 
-  def request_post(path, request = {})
-    request.merge!(candidateId: @key)
-    HTTParty.post build_url(path), body: request
+  def request_post(path, params = {})
+    params.merge!(candidateId: @key)
+    build_request(:post, path, params)
   end
 
-  def request_delete(path, request = {})
-    request.merge!(candidateId: @key)
-    HTTParty.delete build_url(path), body: request
+  def request_delete(path, params = {})
+    params.merge!(candidateId: @key)
+    build_request(:delete, path, params)
+  end
+
+  def build_request(method, path, params = {})
+    headers = { 'content-type': 'application/json' }
+    Typhoeus::Request.new(build_url(path), method:, followlocation: true, headers:, body: params.to_json)
   end
 
   def build_url(*paths)

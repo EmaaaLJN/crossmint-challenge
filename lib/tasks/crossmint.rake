@@ -6,30 +6,58 @@ namespace :crossmint do
   task fill_megaverse: :environment do
     crossmint_api = CrossmintApi.new
 
-    # get information and save into database
     crossmint_api.establish_data_from_goals
-    crossmint_api.establish_data_from_goals if Polyanet.count.zero?
 
-    Coordenate.comeths.find_each do |coor|
-      cometh = coor.target
-      crossmint_api.add_comeths(coor.x, coor.y, cometh.direction)
-    end
+    #ESTO LO TENGO QUE CAMBIAR, ES UNA LOGICA MUY DE SCOPE
+
+    rate_queue = Limiter::RateQueue.new(5, interval: 9)
+    hydra = Typhoeus::Hydra.new(max_concurrency: 1)
 
     Coordenate.polyanets.find_each do |coor|
-      crossmint_api.add_polyanets(coor.x, coor.y)
+      request = crossmint_api.add_polyanets(coor.x, coor.y) do
+        rate_queue.shift
+      end
+
+      request.on_complete do |response|
+        if response.success?
+          rate_queue.shift
+        elsif response.timed_out?
+          Rails.logger.error 'Request got timed out'
+        elsif response.code.zero?
+          Rails.logger.error response.return_message.to_s
+        else
+          Rails.logger.error "HTTP request failed: #{response.code}."
+        end
+      end
+
+      hydra.queue(request)
     end
+    hydra.run
   end
 
   desc 'this task pretends to clean the matrix 2d megaverse'
   task clean_megaverse: :environment do
     crossmint_api = CrossmintApi.new
 
-    Coordenate.comeths.find_each do |coor|
-      crossmint_api.remove_comeths(coor.x, coor.y)
-    end
+    rate_queue = Limiter::RateQueue.new(5, interval: 9)
+    hydra = Typhoeus::Hydra.new(max_concurrency: 1)
 
     Coordenate.polyanets.find_each do |coor|
-      crossmint_api.remove_polyanets(coor.x, coor.y)
+      request = crossmint_api.remove_polyanets(coor.x, coor.y)
+
+      request.on_complete do |response|
+        if response.success?
+          rate_queue.shift
+        elsif response.timed_out?
+          Rails.logger.error 'Request got timed out'
+        elsif response.code.zero?
+          Rails.logger.error response.return_message.to_s
+        else
+          Rails.logger.error "HTTP request failed: #{response.code}."
+        end
+      end
+      hydra.queue(request)
     end
+    hydra.run
   end
 end
