@@ -3,10 +3,15 @@
 class Coordenate < ApplicationRecord
   belongs_to :target, polymorphic: true
 
+  scope :comeths, -> { includes(:target).where(target_type: :cometh) }
+  scope :polyanets, -> { includes(:target).where(target_type: :polyanet) }
+
   validates :x, :y, presence: true
 
   validate :coordenate_already_occupied
   validate :coordenate_positive
+
+  private
 
   def coordenate_positive
     return if x.nil? || y.nil?
