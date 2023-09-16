@@ -17,7 +17,7 @@ describe CrossmintApi do
     let(:url) { [api_url, 'map', api_key, 'goal'].join('/') }
     let(:stubbed_request) { mocked_goals_response_success(url) }
     let(:response) { subject.establish_data_from_goals }
-    let(:polyanet_ocurrences) { 13 }
+    let(:polyanet_ocurrences) { 113 }
 
     before { stubbed_request }
 
@@ -38,7 +38,7 @@ describe CrossmintApi do
     let(:params) { { row: 2, column: 2, candidateId: api_key } }
 
     context 'when requesting is add a polyanets' do
-      let(:stubbed_request) { mocked_post_polyanets_response_success(url) }
+      let(:stubbed_request) { post_response_success(url) }
 
       let(:request) { subject.add_polyanets(2, 2) }
 
