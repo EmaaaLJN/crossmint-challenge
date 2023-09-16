@@ -2,6 +2,7 @@
 
 FactoryBot.define do
   factory :soloon do
+    color { Soloon.colors.values.sample }
   end
 end
 
