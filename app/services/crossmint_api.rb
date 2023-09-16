@@ -10,7 +10,7 @@ class CrossmintApi
   def establish_data_from_goals
     response = request_get('map', @key, 'goal')
 
-    if response.ok?
+    if response.success?
       parsed_data = parse_goals(response['goal'])
 
       parsed_data.each do |elem, data|
