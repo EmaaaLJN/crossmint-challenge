@@ -17,7 +17,6 @@ describe CrossmintApi do
     let(:url) { [api_url, 'map', api_key, 'goal'].join('/') }
     let(:stubbed_request) { mocked_goals_response_success(url) }
     let(:response) { subject.establish_data_from_goals }
-    let(:polyanet_ocurrences) { 113 }
 
     before { stubbed_request }
 
@@ -27,8 +26,17 @@ describe CrossmintApi do
       expect(stubbed_request).to have_been_requested
     end
 
-    it 'is polyanet inserted into database' do
-      expect { response }.to change(Polyanet, :count).from(0).to(polyanet_ocurrences)
+    context 'when inserting element into database' do
+      let(:polyanet_ocurrences) { 113 }
+      let(:cometh_ocurrences) { 25 }
+
+      it 'is polyanet' do
+        expect { response }.to change(Polyanet, :count).from(0).to(polyanet_ocurrences)
+      end
+
+      it 'is a cometh' do
+        expect { response }.to change(Cometh, :count).from(0).to(cometh_ocurrences)
+      end
     end
   end
 
