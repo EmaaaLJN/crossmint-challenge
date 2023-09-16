@@ -4,6 +4,8 @@ class CrossmintApi
   def initialize
     @url = ENV['API_URL']
     @key = ENV['API_KEY']
+    @rate_queue = Limiter::RateQueue.new(5, interval: 9)
+    @hydra = Typhoeus::Hydra.new(max_concurrency: 1)
   end
 
   def establish_data_from_goals
@@ -19,6 +21,26 @@ class CrossmintApi
     end
 
     request.run
+  end
+
+  def action_collection_to_api(action, collection)
+    collection.find_each do |coor|
+      args = [coor.x, coor.y]
+
+      entity_obj = coor.target
+
+      args.push(entity_obj.direction) if action.to_s == 'add_comeths'
+      args.push(entity_obj.color) if action.to_s == 'add_soloons'
+
+      request = send(action, *args) do
+        @rate_queue.shift
+      end
+      @hydra.queue(request)
+    end
+  end
+
+  def run_requests
+    @hydra.run
   end
 
   def add_polyanets(row, column, &block)
@@ -39,6 +61,16 @@ class CrossmintApi
   def remove_comeths(row, column, &block)
     params = { row:, column: }
     request_delete('comeths', params, &block)
+  end
+
+  def add_soloons(row, column, color, &block)
+    params = { row:, column:, color: }
+    request_post('soloons', params, &block)
+  end
+
+  def remove_soloons(row, column, &block)
+    params = { row:, column: }
+    request_delete('soloons', params, &block)
   end
 
   private
@@ -122,6 +154,7 @@ class CrossmintApi
   def attributes_by_element_type(model_name, attribute)
     attributes = {}
     attributes.merge!({ direction: attribute.downcase.to_sym }) if model_name.downcase == 'cometh'
+    attributes.merge!({ color: attribute.downcase.to_sym }) if model_name.downcase == 'soloon'
   end
 
   def request_handler(response, block)

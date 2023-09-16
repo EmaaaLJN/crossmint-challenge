@@ -30,6 +30,7 @@ describe CrossmintApi do
     context 'when inserting element into database' do
       let(:polyanet_ocurrences) { 113 }
       let(:cometh_ocurrences) { 25 }
+      let(:soloon_ocurrences) { 28 }
 
       it 'is polyanet' do
         expect { response }.to change(Polyanet, :count).from(0).to(polyanet_ocurrences)
@@ -37,6 +38,10 @@ describe CrossmintApi do
 
       it 'is a cometh' do
         expect { response }.to change(Cometh, :count).from(0).to(cometh_ocurrences)
+      end
+
+      it 'is a soloon' do
+        expect { response }.to change(Soloon, :count).from(0).to(soloon_ocurrences)
       end
     end
   end
@@ -72,7 +77,7 @@ describe CrossmintApi do
     end
 
     context 'when requesting is delete a polyanets' do
-      let(:stubbed_request) { mocked_delete_polyanets_response_success(url) }
+      let(:stubbed_request) { delete_response_success(url) }
 
       let(:request) { subject.remove_polyanets(2, 2) }
 
@@ -87,6 +92,68 @@ describe CrossmintApi do
 
       it 'responds with success' do
         expect(request.run.code).to be 200
+      end
+    end
+  end
+
+  context 'when making a request to soloons' do
+    let(:url) { [api_url, 'soloons'].join('/') }
+    let(:params) { { row: 2, column: 2, color: 'white', candidateId: api_key } }
+    let(:hydra) { Typhoeus::Hydra.new }
+
+    before do
+      Typhoeus::Expectation.clear
+    end
+
+    context 'when requesting is add a soloons' do
+      let(:stubbed_request) { post_response_success(url) }
+
+      let(:request) { subject.add_soloons(2, 2, 'red') }
+
+      before { stubbed_request }
+
+      it 'has been properly requested' do
+        hydra.queue(request)
+        hydra.run
+        expect(stubbed_request).to have_been_requested
+      end
+
+      it 'responds with success' do
+        expect(request.run.code).to be 200
+      end
+    end
+
+    context 'when requesting is add a soloons' do
+      let(:stubbed_request) { delete_response_success(url) }
+
+      let(:request) { subject.remove_soloons(2, 2) }
+
+      before { stubbed_request }
+
+      it 'has been properly requested' do
+        hydra.queue(request)
+        hydra.run
+        expect(stubbed_request).to have_been_requested
+      end
+
+      it 'responds with success' do
+        expect(request.run.code).to be 200
+      end
+    end
+
+    context 'when requesting fails' do
+      let(:stubbed_request) { post_response_failed(url) }
+      let(:request) { subject.add_soloons(2, '', 'red') }
+
+      before { stubbed_request }
+
+      it 'responds with 400 error' do
+        code = nil
+        Typhoeus.on_complete { |c| code = c.code }
+        hydra.queue request
+        hydra.run
+
+        expect(code).to eq 400
       end
     end
   end

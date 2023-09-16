@@ -2,6 +2,7 @@
 
 FactoryBot.define do
   factory :soloon do
+    color { Soloon.colors.values.sample }
   end
 end
 
@@ -10,6 +11,7 @@ end
 # Table name: soloons
 #
 #  id         :bigint           not null, primary key
+#  color      :integer          default("white")
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #

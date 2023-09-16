@@ -5,6 +5,7 @@ class Coordenate < ApplicationRecord
 
   scope :comeths, -> { includes(:target).where(target_type: :cometh) }
   scope :polyanets, -> { includes(:target).where(target_type: :polyanet) }
+  scope :soloons, -> { includes(:target).where(target_type: :soloon) }
 
   validates :x, :y, presence: true
 

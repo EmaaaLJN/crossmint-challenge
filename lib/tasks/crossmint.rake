@@ -8,52 +8,33 @@ namespace :crossmint do
     # set data into database
     crossmint_api.establish_data_from_goals
 
-    rate_queue = Limiter::RateQueue.new(5, interval: 9)
-    hydra = Typhoeus::Hydra.new(max_concurrency: 1)
-
     # send polyanets to api
-    Coordenate.polyanets.find_each do |coor|
-      request = crossmint_api.add_polyanets(coor.x, coor.y) do
-        rate_queue.shift
-      end
-      hydra.queue(request)
-    end
+    crossmint_api.action_collection_to_api :add_polyanets, Coordenate.polyanets
 
     # send comeths to api
-    Coordenate.comeths.find_each do |coor|
-      cometh = coor.target
-      request = crossmint_api.add_comeths(coor.x, coor.y, cometh.direction) do
-        rate_queue.shift
-      end
-      hydra.queue(request)
-    end
+    crossmint_api.action_collection_to_api :add_comeths, Coordenate.comeths
 
-    hydra.run
+    # send soloons to api
+    crossmint_api.action_collection_to_api :add_soloons, Coordenate.soloons
+
+    # execute enqueued request
+    crossmint_api.run_requests
   end
 
-  desc 'this task pretends to clean the matrix 2d megaverse'
+  desc 'this task cleans the matrix 2d megaverse from api'
   task clean_megaverse: :environment do
     crossmint_api = CrossmintApi.new
 
-    rate_queue = Limiter::RateQueue.new(5, interval: 9)
-    hydra = Typhoeus::Hydra.new(max_concurrency: 1)
-
     # remove polyanets from api
-    Coordenate.polyanets.find_each do |coor|
-      request = crossmint_api.remove_polyanets(coor.x, coor.y) do
-        rate_queue.shift
-      end
-      hydra.queue(request)
-    end
+    crossmint_api.action_collection_to_api :remove_polyanets, Coordenate.polyanets
 
     # remove comeths from api
-    Coordenate.comeths.find_each do |coor|
-      request = crossmint_api.remove_comeths(coor.x, coor.y) do
-        rate_queue.shift
-      end
-      hydra.queue(request)
-    end
+    crossmint_api.action_collection_to_api :remove_comeths, Coordenate.comeths
 
-    hydra.run
+    # remove soloons from api
+    crossmint_api.action_collection_to_api :remove_soloons, Coordenate.soloons
+
+    # execute enqueued request
+    crossmint_api.run_requests
   end
 end

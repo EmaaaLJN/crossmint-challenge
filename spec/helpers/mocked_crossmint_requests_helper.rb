@@ -7,12 +7,6 @@ def mocked_goals_response_success(url)
   }
 end
 
-# TODO
-def mocked_goals_response_failed; end
-
-# TODO
-def mocked_post_comeths_response_failed; end
-
 def post_response_success(url)
   stub_request(:post, url).to_return body: '{}'.to_json, headers: {
     status: 200,
@@ -20,22 +14,18 @@ def post_response_success(url)
   }
 end
 
-def mocked_post_polyanets_response_failed(url)
-  stub_request(:post, url).to_return body: missing_parameter_error, headers: {
-    status: 400,
+def post_response_failed(url)
+  stub_request(:post, url).to_return body: missing_parameter_error.to_json, status: 400, headers: {
     content_type: 'application/json'
   }
 end
 
-def mocked_delete_polyanets_response_success(url)
+def delete_response_success(url)
   stub_request(:delete, url).to_return body: '{}'.to_json, headers: {
     status: 200,
     content_type: 'application/json'
   }
 end
-
-# TODO
-def mocked_delete_polyanets_response_failed; end
 
 def missing_parameter_error
   {
