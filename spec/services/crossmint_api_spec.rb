@@ -9,6 +9,7 @@ describe CrossmintApi do
   let(:api_key) { '0000-1111-2222-3333-4444' }
 
   before do
+    allow(ENV).to receive(:[]).and_call_original
     allow(ENV).to receive(:[]).with('API_URL').and_return(api_url)
     allow(ENV).to receive(:[]).with('API_KEY').and_return(api_key)
   end
