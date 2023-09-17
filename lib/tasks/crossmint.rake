@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 namespace :crossmint do
-  desc 'this task fills the 2d matrix megaverse with polyanet gathered from api entry point goals'
+  desc 'this task fills the 2d matrix megaverse with polyanet gathered from api entry point goals.'
   task fill_megaverse: :environment do
     crossmint_api = CrossmintApi.new
 
