@@ -11,6 +11,8 @@ class CrossmintApi
   def establish_data_from_goals
     request = request_get('map', @key, 'goal') do |response|
       response_body = JSON.parse response.body
+      return logger_unreachable_info unless response_body.key? 'goal'
+
       parsed_data = parse_goals(response_body['goal'])
 
       parsed_data.each do |elem, data|
@@ -194,5 +196,9 @@ class CrossmintApi
 
   def logger_error_code(response)
     Rails.logger.error "HTTP request failed: #{response.code}."
+  end
+
+  def logger_unreachable_info
+    Rails.logger.error 'it is not possible got information from goals entry point'
   end
 end
