@@ -155,6 +155,8 @@ class CrossmintApi
     attributes = {}
     attributes.merge!({ direction: attribute.downcase.to_sym }) if model_name.downcase == 'cometh'
     attributes.merge!({ color: attribute.downcase.to_sym }) if model_name.downcase == 'soloon'
+
+    attributes
   end
 
   def request_handler(response, block)
