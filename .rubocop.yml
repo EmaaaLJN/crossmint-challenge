@@ -20,6 +20,10 @@ Metrics/BlockLength:
   Exclude:
     - spec/models/coordenate_spec.rb
 
+Metrics/ClassLength:
+  Exclude:
+    - app/services/crossmint_api.rb
+
 Metrics/MethodLength:
   Exclude:
     - spec/helpers/mocked_crossmint_requests_helper.rb

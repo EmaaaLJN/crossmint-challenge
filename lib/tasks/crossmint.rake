@@ -21,7 +21,7 @@ namespace :crossmint do
     crossmint_api.run_requests
   end
 
-  desc 'this task cleans the matrix 2d megaverse from api'
+  desc 'this task cleans the matrix 2d megaverse from api. NOTE: this command does not remove records from database.'
   task clean_megaverse: :environment do
     crossmint_api = CrossmintApi.new
 

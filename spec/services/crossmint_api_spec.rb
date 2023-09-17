@@ -46,7 +46,6 @@ describe CrossmintApi do
     end
   end
 
-  # TODO: faltan los casos donde el api devuelve un resultado invalido
   context 'when making a request to polyanets' do
     let(:url) { [api_url, 'polyanets'].join('/') }
     let(:params) { { row: 2, column: 2, candidateId: api_key } }
