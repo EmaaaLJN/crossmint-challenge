@@ -19,6 +19,7 @@ AllCops:
 Metrics/BlockLength:
   Exclude:
     - spec/models/coordenate_spec.rb
+    - spec/services/crossmint_api_spec.rb
 
 Metrics/ClassLength:
   Exclude:
