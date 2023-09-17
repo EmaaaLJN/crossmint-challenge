@@ -1,3 +1,41 @@
 inherit_from: .rubocop_todo.yml
 
 require: rubocop-rails
+
+Documentation:
+  Enabled: false
+
+AllCops:
+  Exclude:
+    - lib/tasks/auto_annotate_models.rake
+    - db/**/*
+    - config/**/*
+    - bin/**/*
+    - Rakefile
+    - app/mailers/application_mailer.rb
+    - test/**/*
+    - config.ru
+
+Metrics/BlockLength:
+  Exclude:
+    - spec/models/coordenate_spec.rb
+
+Metrics/ClassLength:
+  Exclude:
+    - app/services/crossmint_api.rb
+
+Metrics/MethodLength:
+  Exclude:
+    - spec/helpers/mocked_crossmint_requests_helper.rb
+
+Style/WordArray:
+  Exclude:
+    - spec/helpers/mocked_crossmint_requests_helper.rb
+
+Style/StringLiterals:
+  Exclude:
+    - spec/helpers/mocked_crossmint_requests_helper.rb
+
+Layout/FirstArrayElementIndentation:
+  Exclude:
+    - spec/helpers/mocked_crossmint_requests_helper.rb
